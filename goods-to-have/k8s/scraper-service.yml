@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scraper-service-deployment
+  labels:
+    app: scraper-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: scraper-service
+  template:
+    metadata:
+      labels:
+        app: scraper-service
+    spec:
+      containers:
+        - name: scraper-servivce
+          image: leandrofreila/scraper-service:latest
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: scraper-service-lb
+spec:
+  type: LoadBalancer
+  ports:
+  - name: http
+    port: 8080
+  - name: metrics
+    port: 9095
+  selector:
+    app: scraper-service-lb
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: scraper-service
+spec:
+  ports:
+  - protocol: TCP
+    port: 9095
+    targetPort: 9095
+  selector:
+    app: scraper-service
